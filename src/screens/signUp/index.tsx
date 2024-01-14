@@ -172,7 +172,7 @@ const SignUpScreen = (): JSX.Element => {
           </S.Section>
           <View>
             <S.SignUpButton
-              enabled={signUpButtonEnabled}
+              disabled={!signUpButtonEnabled}
               onPress={onPressSignUpButton}>
               <S.SignUpButtonLabel>회원가입</S.SignUpButtonLabel>
             </S.SignUpButton>

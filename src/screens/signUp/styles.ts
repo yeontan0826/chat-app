@@ -31,11 +31,11 @@ export const ErrorText = styled.Text`
   color: ${Colors.RED};
 `;
 
-export const SignUpButton = styled.TouchableOpacity<{ enabled: boolean }>`
+export const SignUpButton = styled.TouchableOpacity<{ disabled: boolean }>`
   align-items: center;
   padding: 20px;
   border-radius: 10px;
-  background-color: ${props => (props.enabled ? Colors.BLACK : Colors.GRAY)};
+  background-color: ${props => (props.disabled ? Colors.GRAY : Colors.BLACK)};
 `;
 
 export const SignUpButtonLabel = styled.Text`
