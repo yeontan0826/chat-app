@@ -13,11 +13,18 @@ import { Collections } from '../../@types/firestore';
 import { User } from '../../@types/user';
 import Screen from '../../components/screen';
 import AuthContext from '../../components/context/auth';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../navigations/root/types';
 
 const HomeScreen = (): JSX.Element => {
   const { user: me } = useContext(AuthContext);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
+  const { navigate } =
+    useNavigation<
+      NativeStackNavigationProp<RootStackParamList, 'HomeScreen'>
+    >();
 
   const onPressLogout = useCallback(async () => {
     await auth().signOut();
@@ -84,7 +91,13 @@ const HomeScreen = (): JSX.Element => {
                   <S.EmptyLabel>사용자가 없습니다</S.EmptyLabel>
                 )}
                 renderItem={({ item: user }) => (
-                  <S.UserListItem>
+                  <S.UserListItem
+                    onPress={() => {
+                      navigate('ChatScreen', {
+                        userIds: [me.userId, user.userId],
+                        other: user,
+                      });
+                    }}>
                     <S.OtherNameLabel>{user.name}</S.OtherNameLabel>
                     <S.OtherEmailLabel>{user.email}</S.OtherEmailLabel>
                   </S.UserListItem>

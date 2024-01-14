@@ -15,7 +15,9 @@ const SignUpScreen = (): JSX.Element => {
   const [confirmedPassword, setConfirmedPassword] = useState('');
   const [name, setName] = useState('');
   const { navigate } =
-    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+    useNavigation<
+      NativeStackNavigationProp<RootStackParamList, 'SignUpScreen'>
+    >();
 
   const { processingSignUp, signUp } = useContext(AuthContext);
 

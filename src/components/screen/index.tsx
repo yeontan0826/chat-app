@@ -1,10 +1,11 @@
 import { useCallback } from 'react';
 import { TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 import styled from 'styled-components/native';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 import Colors from '../../modules/colors';
-import { useNavigation } from '@react-navigation/native';
 
 interface ScreenProps {
   title?: string;
@@ -24,7 +25,7 @@ const Screen = ({ title, children }: ScreenProps): JSX.Element => {
         <HeaderLeft>
           {canGoBack() && (
             <TouchableOpacity onPress={onPressBackButton}>
-              <BackButtonLabel>{'뒤로가기'}</BackButtonLabel>
+              <BackButtonIcon name="arrow-back" />
             </TouchableOpacity>
           )}
         </HeaderLeft>
@@ -52,11 +53,11 @@ const Header = styled.View`
 const HeaderLeft = styled.View`
   flex: 1;
   justify-content: center;
-  align-items: center;
 `;
 
-const BackButtonLabel = styled.Text`
-  font-size: 12px;
+const BackButtonIcon = styled(MaterialIcons)`
+  margin-left: 20px;
+  font-size: 28px;
   color: ${Colors.BLACK};
 `;
 
