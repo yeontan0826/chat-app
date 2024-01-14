@@ -1,8 +1,11 @@
 import { useCallback, useContext, useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, View } from 'react-native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
 import validator from 'validator';
 
 import * as S from './styles';
+import { RootStackParamList } from '../../navigations/root/types';
 import Screen from '../../components/screen';
 import AuthContext from '../../components/context/auth';
 
@@ -11,6 +14,8 @@ const SignUpScreen = (): JSX.Element => {
   const [password, setPassword] = useState('');
   const [confirmedPassword, setConfirmedPassword] = useState('');
   const [name, setName] = useState('');
+  const { navigate } =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const { processingSignUp, signUp } = useContext(AuthContext);
 
@@ -45,7 +50,7 @@ const SignUpScreen = (): JSX.Element => {
 
   const confirmedPasswordErrorText = useMemo(() => {
     if (confirmedPassword.length === 0) {
-      return '비밀번호를 입력해 주세요';
+      return '비밀번호를 다시 입력해 주세요';
     }
 
     if (confirmedPassword.length < 6) {
@@ -110,7 +115,9 @@ const SignUpScreen = (): JSX.Element => {
   }, [email, name, password, signUp]);
 
   // 로그인 스크린으로 이동
-  const onPressSignInButton = useCallback(() => {}, []);
+  const onPressSignInButton = useCallback(() => {
+    navigate('SignInScreen');
+  }, [navigate]);
 
   return (
     <Screen title="회원가입">
