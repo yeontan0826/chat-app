@@ -1,5 +1,7 @@
 import styled from 'styled-components/native';
 import Colors from '../../modules/colors';
+import Profile from '../../components/profile';
+import UserPhoto from '../../components/userPhoto';
 
 export const Container = styled.View`
   flex: 1;
@@ -21,6 +23,10 @@ export const UserSectionContent = styled.View`
   background-color: ${Colors.BLACK};
 `;
 
+export const ProfileImage = styled(Profile)`
+  margin-right: 10px;
+`;
+
 export const MyProfile = styled.View`
   flex: 1;
 `;
@@ -38,8 +44,9 @@ export const MyEmailLabel = styled.Text`
 `;
 
 export const LogoutLabel = styled.Text`
-  color: ${Colors.WHITE};
   font-size: 14px;
+  font-weight: 500;
+  color: ${Colors.WHITE};
 `;
 
 export const UserListSection = styled.View`
@@ -61,9 +68,16 @@ export const SectionTitleLabel = styled.Text`
 `;
 
 export const UserListItem = styled.TouchableOpacity`
+  flex-direction: row;
+  align-items: center;
   padding: 20px;
   border-radius: 12px;
-  background-color: ${Colors.LIGHT_GRAY};
+  border-width: 1px;
+  border-color: ${Colors.BLACK};
+`;
+
+export const UserImage = styled(UserPhoto)`
+  margin-right: 10px;
 `;
 
 export const OtherNameLabel = styled.Text`

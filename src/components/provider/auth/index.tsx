@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
+import storage from '@react-native-firebase/storage';
+import _ from 'lodash';
 
 import { User } from '../../../@types/user';
 import { Collections } from '../../../@types/firestore';
@@ -20,6 +22,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           userId: fbUser.uid,
           email: fbUser.email ?? '',
           name: fbUser.displayName ?? '',
+          profileUrl: fbUser.photoURL ?? '',
         });
       } else {
         // logout
@@ -69,6 +72,35 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, []);
 
+  const updateProfileImage = useCallback<(filepath: string) => Promise<void>>(
+    async filepath => {
+      if (user === null) {
+        throw new Error('User is undefined');
+      }
+
+      // Upload image
+      const filename = _.last(filepath.split('/'));
+
+      if (filename === undefined) {
+        throw new Error('Filename is undefined');
+      }
+
+      const storageFilepath = `users/${user.userId}/${filename}`;
+      const snapshot = await storage().ref(storageFilepath).putFile(filepath);
+
+      // Register image on user profile
+      const url = await storage()
+        .ref(snapshot.metadata.fullPath)
+        .getDownloadURL();
+      await auth().currentUser?.updateProfile({ photoURL: url });
+      await firestore()
+        .collection(Collections.USERS)
+        .doc(user.userId)
+        .update({ profileUrl: url });
+    },
+    [user],
+  );
+
   const value = useMemo(() => {
     return {
       initialized,
@@ -77,8 +109,17 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       processingSignUp,
       signIn,
       processingSignIn,
+      updateProfileImage,
     };
-  }, [initialized, processingSignIn, processingSignUp, signIn, signUp, user]);
+  }, [
+    initialized,
+    processingSignIn,
+    processingSignUp,
+    signIn,
+    signUp,
+    updateProfileImage,
+    user,
+  ]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

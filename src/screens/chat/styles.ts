@@ -82,6 +82,28 @@ export const SendIcon = styled(MaterialIcons)`
   color: ${Colors.WHITE};
 `;
 
+export const ImageButton = styled.TouchableOpacity`
+  width: 50px;
+  height: 50px;
+  justify-content: center;
+  align-items: center;
+  margin-left: 8px;
+  border-radius: 10px;
+  border-width: 1.4px;
+  border-color: ${Colors.BLACK};
+  background-color: ${Colors.WHITE};
+`;
+
+export const ImageIcon = styled(MaterialIcons)`
+  font-size: 32px;
+  color: ${Colors.BLACK};
+`;
+
 export const MessageSeparator = styled.View`
-  height: 8px;
+  height: 10px;
+`;
+
+export const SendingContainer = styled.View`
+  align-items: center;
+  padding-top: 10px;
 `;

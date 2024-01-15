@@ -5,20 +5,21 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import ImageCropPicker from 'react-native-image-crop-picker';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 
 import * as S from './styles';
+import { RootStackParamList } from '../../navigations/root/types';
 import { Collections } from '../../@types/firestore';
 import { User } from '../../@types/user';
 import Screen from '../../components/screen';
 import AuthContext from '../../components/context/auth';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../navigations/root/types';
 
 const HomeScreen = (): JSX.Element => {
-  const { user: me } = useContext(AuthContext);
+  const { user: me, updateProfileImage } = useContext(AuthContext);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
   const { navigate } =
@@ -42,6 +43,16 @@ const HomeScreen = (): JSX.Element => {
 
     setLoadingUsers(false);
   }, [me?.userId]);
+
+  const onPressProfile = useCallback(async () => {
+    const image = await ImageCropPicker.openPicker({
+      cropping: true,
+      cropperCircleOverlay: true,
+    });
+
+    console.log('IMAGE : ', image);
+    await updateProfileImage(image.path);
+  }, [updateProfileImage]);
 
   const renderLoading = useCallback(
     () => (
@@ -67,6 +78,11 @@ const HomeScreen = (): JSX.Element => {
         <View>
           <S.SectionTitle>나의 정보</S.SectionTitle>
           <S.UserSectionContent>
+            <S.ProfileImage
+              onPress={onPressProfile}
+              imageUrl={me.profileUrl}
+              text={me.name[0]}
+            />
             <S.MyProfile>
               <S.MyNameLabel>{me.name}</S.MyNameLabel>
               <S.MyEmailLabel>{me.email}</S.MyEmailLabel>
@@ -76,6 +92,7 @@ const HomeScreen = (): JSX.Element => {
             </TouchableOpacity>
           </S.UserSectionContent>
         </View>
+        {/* 대화 상대 목록 */}
         <S.UserListSection>
           {loadingUsers ? (
             renderLoading()
@@ -98,8 +115,11 @@ const HomeScreen = (): JSX.Element => {
                         other: user,
                       });
                     }}>
-                    <S.OtherNameLabel>{user.name}</S.OtherNameLabel>
-                    <S.OtherEmailLabel>{user.email}</S.OtherEmailLabel>
+                    <S.UserImage imageUrl={user.profileUrl} name={user.name} />
+                    <View>
+                      <S.OtherNameLabel>{user.name}</S.OtherNameLabel>
+                      <S.OtherEmailLabel>{user.email}</S.OtherEmailLabel>
+                    </View>
                   </S.UserListItem>
                 )}
               />

@@ -8,6 +8,7 @@ export interface AuthContextProp {
   processingSignUp: boolean; // 회원가입 진행 여부
   signIn: (email: string, password: string) => Promise<void>;
   processingSignIn: boolean;
+  updateProfileImage: (filepath: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextProp>({
@@ -17,6 +18,7 @@ const AuthContext = createContext<AuthContextProp>({
   processingSignUp: false,
   signIn: async () => {},
   processingSignIn: false,
+  updateProfileImage: async () => {},
 });
 
 export default AuthContext;

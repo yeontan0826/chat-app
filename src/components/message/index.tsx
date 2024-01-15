@@ -3,48 +3,91 @@ import styled from 'styled-components/native';
 import moment from 'moment';
 
 import Colors from '../../modules/colors';
+import UserPhoto from '../userPhoto';
+import ImageMessage from '../imageMessage';
+
+interface TextMessage {
+  text: string;
+}
+
+interface ImageMessage {
+  url: string;
+}
 
 interface MessageProps {
   name: string;
-  text: string;
+  message: TextMessage | ImageMessage;
   createdAt: Date;
   isOtherMessage: boolean;
+  userImageUrl?: string;
+  unReadCount?: number;
 }
 
 const Message = ({
   name,
-  text,
+  message,
   createdAt,
   isOtherMessage,
+  userImageUrl,
+  unReadCount = 0,
 }: MessageProps): JSX.Element => {
+  const renderMessage = useCallback(() => {
+    if ('text' in message) {
+      return (
+        <MessageText isOtherMessage={isOtherMessage}>
+          {message.text}
+        </MessageText>
+      );
+    }
+
+    if ('url' in message) {
+      return <ImageMessage url={message.url} />;
+    }
+  }, [isOtherMessage, message]);
+
   const renderMessageContainer = useCallback<() => JSX.Element[]>(() => {
     const components = [
-      <TimeLabel key={'timeLabel'} isOtherMessage={isOtherMessage}>
-        {moment(createdAt).format('HH:mm')}
-      </TimeLabel>,
+      <MetaInfo key={'metaInfo'} isOtherMessage={isOtherMessage}>
+        {unReadCount > 0 && <UnReadCountLabel>{unReadCount}</UnReadCountLabel>}
+        <TimeLabel>{moment(createdAt).format('HH:mm')}</TimeLabel>
+      </MetaInfo>,
       <Bubble key={'message'} isOtherMessage={isOtherMessage}>
-        <MessageText isOtherMessage={isOtherMessage}>{text}</MessageText>
+        {renderMessage()}
       </Bubble>,
     ];
     return isOtherMessage ? components.reverse() : components;
-  }, [createdAt, isOtherMessage, text]);
+  }, [createdAt, isOtherMessage, renderMessage, unReadCount]);
 
   return (
-    <Container isOtherMessage={isOtherMessage}>
-      <NameLabel>{name}</NameLabel>
-      <MessageContainer>{renderMessageContainer()}</MessageContainer>
-    </Container>
+    <Root>
+      {isOtherMessage && (
+        <UserImage imageUrl={userImageUrl} name={name} size={42} />
+      )}
+      <Container isOtherMessage={isOtherMessage}>
+        <NameLabel>{name}</NameLabel>
+        <MessageContainer>{renderMessageContainer()}</MessageContainer>
+      </Container>
+    </Root>
   );
 };
 
 export default Message;
 
+const Root = styled.View`
+  flex-direction: row;
+`;
+
+const UserImage = styled(UserPhoto)`
+  margin-right: 10px;
+`;
+
 const Container = styled.View<{ isOtherMessage: boolean }>`
+  flex: 1;
   align-items: ${props => (props.isOtherMessage ? 'flex-start' : 'flex-end')};
 `;
 
 const NameLabel = styled.Text`
-  margin-bottom: 4px;
+  margin-bottom: 2px;
   font-size: 14px;
   font-weight: 500;
   color: ${Colors.BLACK};
@@ -55,9 +98,18 @@ const MessageContainer = styled.View`
   align-items: flex-end;
 `;
 
-const TimeLabel = styled.Text<{ isOtherMessage: boolean }>`
-  margin-right: ${props => (props.isOtherMessage ? 0 : 6)}px;
-  margin-left: ${props => (props.isOtherMessage ? 6 : 0)}px;
+const MetaInfo = styled.View<{ isOtherMessage: boolean }>`
+  align-items: ${props => (props.isOtherMessage ? 'flex-start' : 'flex-end')};
+  margin-right: ${props => (props.isOtherMessage ? 0 : 4)}px;
+  margin-left: ${props => (props.isOtherMessage ? 4 : 0)}px;
+`;
+
+const UnReadCountLabel = styled.Text`
+  font-size: 12px;
+  color: ${Colors.GRAY};
+`;
+
+const TimeLabel = styled.Text`
   font-size: 12px;
   color: ${Colors.GRAY};
 `;
