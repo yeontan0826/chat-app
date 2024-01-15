@@ -88,6 +88,7 @@ export const ImageButton = styled.TouchableOpacity`
   justify-content: center;
   align-items: center;
   margin-left: 8px;
+  margin-right: 8px;
   border-radius: 10px;
   border-width: 1.4px;
   border-color: ${Colors.BLACK};

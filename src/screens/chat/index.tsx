@@ -1,5 +1,5 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, FlatList } from 'react-native';
+import { ActivityIndicator, Alert, FlatList, View } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import ImageCropPicker from 'react-native-image-crop-picker';
 import moment from 'moment';
@@ -11,6 +11,7 @@ import useChat from '../../hooks/useChat';
 import AuthContext from '../../components/context/auth';
 import Message from '../../components/message';
 import UserPhoto from '../../components/userPhoto';
+import MicButton from '../../components/micButton';
 
 const ChatScreen = (): JSX.Element => {
   const { params } = useRoute<RouteProp<RootStackParamList, 'ChatScreen'>>();
@@ -28,6 +29,7 @@ const ChatScreen = (): JSX.Element => {
     updateMessageReadAt,
     userToMessageReadAt,
     sendImageMessage,
+    sendAudioMessage,
   } = useChat(userIds);
 
   useEffect(() => {
@@ -61,6 +63,23 @@ const ChatScreen = (): JSX.Element => {
       sendImageMessage(image.path, me);
     }
   }, [me, sendImageMessage]);
+
+  const onRecorded = useCallback<(path: string) => void>(
+    path => {
+      Alert.alert('녹음 완료', '음성 메시지를 보내시겠습니까?', [
+        { text: '아니요' },
+        {
+          text: '예',
+          onPress: () => {
+            if (me !== null) {
+              sendAudioMessage(path, me);
+            }
+          },
+        },
+      ]);
+    },
+    [me, sendAudioMessage],
+  );
 
   const renderChat = useCallback(() => {
     if (chat === null) {
@@ -128,7 +147,19 @@ const ChatScreen = (): JSX.Element => {
 
             if (message.imageUrl !== null) {
               return (
-                <Message {...commonProps} message={{ url: message.imageUrl }} />
+                <Message
+                  {...commonProps}
+                  message={{ imageUrl: message.imageUrl }}
+                />
+              );
+            }
+
+            if (message.audioUrl !== null) {
+              return (
+                <Message
+                  {...commonProps}
+                  message={{ audioUrl: message.audioUrl }}
+                />
               );
             }
 
@@ -145,6 +176,9 @@ const ChatScreen = (): JSX.Element => {
           <S.ImageButton onPress={onPressImageButton}>
             <S.ImageIcon name="image" />
           </S.ImageButton>
+          <View>
+            <MicButton onRecorded={onRecorded} />
+          </View>
         </S.InputContainer>
       </S.ChatContainer>
     );
@@ -156,6 +190,7 @@ const ChatScreen = (): JSX.Element => {
     sendDisabled,
     onPressSendButton,
     onPressImageButton,
+    onRecorded,
     sending,
     me?.userId,
     userToMessageReadAt,

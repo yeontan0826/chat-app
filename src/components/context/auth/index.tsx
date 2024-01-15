@@ -9,6 +9,7 @@ export interface AuthContextProp {
   signIn: (email: string, password: string) => Promise<void>;
   processingSignIn: boolean;
   updateProfileImage: (filepath: string) => Promise<void>;
+  addFcmToken: (token: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextProp>({
@@ -19,6 +20,7 @@ const AuthContext = createContext<AuthContextProp>({
   signIn: async () => {},
   processingSignIn: false,
   updateProfileImage: async () => {},
+  addFcmToken: async () => {},
 });
 
 export default AuthContext;

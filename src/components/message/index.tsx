@@ -5,18 +5,23 @@ import moment from 'moment';
 import Colors from '../../modules/colors';
 import UserPhoto from '../userPhoto';
 import ImageMessage from '../imageMessage';
+import AudioMessage from '../audioMessage';
 
 interface TextMessage {
   text: string;
 }
 
 interface ImageMessage {
-  url: string;
+  imageUrl: string;
+}
+
+interface AudioMessage {
+  audioUrl: string;
 }
 
 interface MessageProps {
   name: string;
-  message: TextMessage | ImageMessage;
+  message: TextMessage | ImageMessage | AudioMessage;
   createdAt: Date;
   isOtherMessage: boolean;
   userImageUrl?: string;
@@ -40,8 +45,14 @@ const Message = ({
       );
     }
 
-    if ('url' in message) {
-      return <ImageMessage url={message.url} />;
+    if ('imageUrl' in message) {
+      return <ImageMessage url={message.imageUrl} />;
+    }
+
+    if ('audioUrl' in message) {
+      return (
+        <AudioMessage url={message.audioUrl} isOtherMessage={isOtherMessage} />
+      );
     }
   }, [isOtherMessage, message]);
 
@@ -64,7 +75,7 @@ const Message = ({
         <UserImage imageUrl={userImageUrl} name={name} size={42} />
       )}
       <Container isOtherMessage={isOtherMessage}>
-        <NameLabel>{name}</NameLabel>
+        {isOtherMessage && <NameLabel>{name}</NameLabel>}
         <MessageContainer>{renderMessageContainer()}</MessageContainer>
       </Container>
     </Root>

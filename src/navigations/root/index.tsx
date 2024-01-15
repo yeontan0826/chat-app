@@ -10,10 +10,13 @@ import SignUpScreen from '../../screens/signUp';
 import SignInScreen from '../../screens/signIn';
 import HomeScreen from '../../screens/home';
 import ChatScreen from '../../screens/chat';
+import usePushNotification from '../../hooks/usePushNotification';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const RootStackNavigation = (): JSX.Element => {
+  usePushNotification();
+
   const { user, processingSignIn, processingSignUp, initialized } =
     useContext(AuthContext);
 
