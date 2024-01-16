@@ -1,5 +1,3 @@
-import { User } from '../../@types/user';
-
 export type RootStackParamList = {
   LoadingScreen: undefined;
   SignUpScreen: undefined;
@@ -7,6 +5,5 @@ export type RootStackParamList = {
   HomeScreen: undefined;
   ChatScreen: {
     userIds: string[];
-    other: User;
   };
 };

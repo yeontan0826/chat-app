@@ -5,11 +5,13 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ImageCropPicker from 'react-native-image-crop-picker';
+import Toast from 'react-native-toast-message';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
+import messaging from '@react-native-firebase/messaging';
 
 import * as S from './styles';
 import { RootStackParamList } from '../../navigations/root/types';
@@ -26,6 +28,7 @@ const HomeScreen = (): JSX.Element => {
     useNavigation<
       NativeStackNavigationProp<RootStackParamList, 'HomeScreen'>
     >();
+  const isFocused = useIsFocused();
 
   const onPressLogout = useCallback(async () => {
     await auth().signOut();
@@ -43,6 +46,10 @@ const HomeScreen = (): JSX.Element => {
 
     setLoadingUsers(false);
   }, [me?.userId]);
+
+  useEffect(() => {
+    loadUsers();
+  }, [loadUsers]);
 
   const onPressProfile = useCallback(async () => {
     const image = await ImageCropPicker.openPicker({
@@ -63,9 +70,68 @@ const HomeScreen = (): JSX.Element => {
     [],
   );
 
+  /**
+   * notification
+   */
+
+  // 1. App: Background
   useEffect(() => {
-    loadUsers();
-  }, [loadUsers]);
+    const unsubscribe = messaging().onNotificationOpenedApp(message => {
+      const stringifiedUserIds = message.data?.userIds as string;
+      if (stringifiedUserIds !== undefined) {
+        const userIds = JSON.parse(stringifiedUserIds) as string[];
+        navigate('ChatScreen', { userIds });
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [navigate]);
+
+  // 2. App: Quit
+  useEffect(() => {
+    messaging()
+      .getInitialNotification()
+      .then(message => {
+        const stringifiedUserIds = message?.data?.userIds as string;
+        if (stringifiedUserIds !== undefined) {
+          const userIds = JSON.parse(stringifiedUserIds) as string[];
+          navigate('ChatScreen', { userIds });
+        }
+      });
+  }, [navigate]);
+
+  // 3. App: Foreground
+  useEffect(() => {
+    const unSubscribe = messaging().onMessage(message => {
+      if (isFocused) {
+        const { notification } = message;
+
+        if (notification !== undefined) {
+          const { title, body } = notification;
+
+          Toast.show({
+            type: 'success',
+            text1: title,
+            text2: body,
+            onPress: () => {
+              const stringifiedUserIds = message?.data?.userIds as string;
+              if (stringifiedUserIds !== undefined) {
+                const userIds = JSON.parse(stringifiedUserIds) as string[];
+                navigate('ChatScreen', { userIds });
+                Toast.hide();
+              }
+            },
+          });
+        }
+      }
+    });
+
+    return () => {
+      unSubscribe();
+    };
+  }, [isFocused, navigate]);
 
   if (me === null) {
     return <></>;
@@ -112,7 +178,6 @@ const HomeScreen = (): JSX.Element => {
                     onPress={() => {
                       navigate('ChatScreen', {
                         userIds: [me.userId, user.userId],
-                        other: user,
                       });
                     }}>
                     <S.UserImage imageUrl={user.profileUrl} name={user.name} />

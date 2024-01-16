@@ -15,7 +15,7 @@ import MicButton from '../../components/micButton';
 
 const ChatScreen = (): JSX.Element => {
   const { params } = useRoute<RouteProp<RootStackParamList, 'ChatScreen'>>();
-  const { other, userIds } = params;
+  const { userIds } = params;
 
   const { user: me } = useContext(AuthContext);
   const [text, setText] = useState('');
@@ -31,6 +31,13 @@ const ChatScreen = (): JSX.Element => {
     sendImageMessage,
     sendAudioMessage,
   } = useChat(userIds);
+
+  const other = useMemo(() => {
+    if (chat !== null && me !== null) {
+      return chat.users.filter(u => u.userId !== me.userId)[0];
+    }
+    return null;
+  }, [chat, me]);
 
   useEffect(() => {
     if (me !== null && messages.length > 0) {
@@ -197,7 +204,7 @@ const ChatScreen = (): JSX.Element => {
   ]);
 
   return (
-    <Screen title={other.name}>
+    <Screen title={other?.name}>
       <S.Container>
         {loading ? (
           <S.LoadingContainer>
